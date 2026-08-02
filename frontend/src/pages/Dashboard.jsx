@@ -4,7 +4,6 @@ import ActionCards from '../components/ActionCards';
 import MatchResultCard from '../components/MatchResultCard';
 import PromptInput from '../components/PromptInput';
 
-// Mock list of hackathons to render dynamically
 const INITIAL_MATCHES = [
   {
     id: 1,
@@ -20,27 +19,42 @@ const INITIAL_MATCHES = [
 ];
 
 export default function Dashboard() {
-  // 1. State for holding hackathon results dynamically
   const [matches, setMatches] = useState(INITIAL_MATCHES);
-
-  // 2. State for holding the attached resume file
   const [uploadedResume, setUploadedResume] = useState(null);
 
-  // 3. Handler function when a file is picked in PromptInput
   const handleFileSelect = (file) => {
     setUploadedResume(file);
     console.log("Uploaded file saved in Dashboard state:", file.name);
   };
 
+  // Handler for receiving submitted skills
+  const handleSkillSubmit = ({ textQuery, file }) => {
+    console.log("Submitted query:", textQuery);
+    console.log("Submitted file:", file?.name);
+
+    // Dynamic Mock Match Result based on input
+    const newMatch = {
+      id: Date.now(),
+      title: textQuery ? `Hackathon Matched for: "${textQuery}"` : "Resume Matched Hackathon",
+      matchPercentage: 92,
+      locationType: "Remote",
+      dates: "Sep 01 - Sep 05",
+      prizePool: "$15,000",
+      isBeginnerFriendly: true,
+      fitReason: `Matched based on skills/resume submitted: ${textQuery || file?.name}`,
+      skillGap: "Next.js & GraphQL basics."
+    };
+
+    // Prepend new match to the results list
+    setMatches((prevMatches) => [newMatch, ...prevMatches]);
+  };
+
   return (
     <div className="flex min-h-screen bg-[#0f1420] text-slate-100 font-sans antialiased">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content Area */}
       <main className="flex-1 p-8 max-w-5xl mx-auto flex flex-col justify-between">
         <div>
-          {/* Header Title */}
           <header className="mb-6">
             <h1 className="text-2xl font-bold flex items-center gap-2">
               👋 Hello, Aiza! Ready to find your next hackathon?
@@ -50,10 +64,8 @@ export default function Dashboard() {
             </p>
           </header>
 
-          {/* Action Cards */}
           <ActionCards />
 
-          {/* Dynamic Results Feed */}
           <div className="mt-6">
             {matches.map((match) => (
               <MatchResultCard key={match.id} match={match} />
@@ -61,9 +73,11 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Input Bar with file handler attached */}
         <div className="mt-6">
-          <PromptInput onFileSelect={handleFileSelect} />
+          <PromptInput 
+            onFileSelect={handleFileSelect} 
+            onSubmitSkills={handleSkillSubmit} 
+          />
         </div>
       </main>
     </div>
